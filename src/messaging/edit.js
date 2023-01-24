@@ -37,6 +37,8 @@ module.exports = function (Messaging) {
             Messaging.getMessagesData([mid], uid, roomId, true),
         ]);
         uids.forEach((uid) => {
+            // The next line calls a function in a module that has not been updated to TS yet
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
             sockets.in(`uid_${uid}`).emit('event:chats.edit', {
                 messages: messages,
             });
@@ -57,11 +59,19 @@ module.exports = function (Messaging) {
         // The next line calls a function in a module that has not been updated to TS yet
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
         const isAdminOrGlobalMod = yield user.isAdminOrGlobalMod(uid);
-        if (meta.config.disableChat) {
+        // The next line calls a function in a module that has not been updated to TS yet
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+        const disabled = meta.config.disableChat;
+        if (disabled) {
             throw new Error('[[error:chat-disabled]]');
         }
-        else if (!isAdminOrGlobalMod && meta.config.disableChatMessageEditing) {
-            throw new Error('[[error:chat-message-editing-disabled]]');
+        else if (!isAdminOrGlobalMod) {
+            // The next line calls a function in a module that has not been updated to TS yet
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+            const metaval = meta.config.disableChatMessageEditing;
+            if (metaval) {
+                throw new Error('[[error:chat-message-editing-disabled]]');
+            }
         }
         // The next line calls a function in a module that has not been updated to TS yet
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
@@ -83,7 +93,7 @@ module.exports = function (Messaging) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
         const chatConfigDuration = meta.config[durationConfig];
         if (chatConfigDuration && Date.now() - messageData.timestamp > chatConfigDuration * 1000) {
-            throw new Error(`[[error:chat-${type}-duration-expired, ${meta.config[durationConfig]}]]`);
+            throw new Error(`[[error:chat-${type}-duration-expired, ${chatConfigDuration}]]`);
         }
         if (messageData.fromuid === parseInt(uid, 10) && !messageData.system) {
             return;
