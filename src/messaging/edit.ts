@@ -4,7 +4,7 @@ import plugins = require('../plugins');
 import privileges = require('../privileges');
 import sockets = require('../socket.io');
 
-interface MessagingInfo {
+interface Messaging {
     checkContent: (content: string) => Promise<void>;
     getMessageField: (mid : string, content : string) => Promise<Message>;
     editMessage: (uid: string, mid: string, roomId: string, content: string) => Promise<void>;
@@ -22,12 +22,9 @@ interface Message {
     uid?: string;
     roomId?: string;
     system?: number;
-    newSet?: boolean;
     mid?: string;
     timestamp?: number;
     fromuid?: string | number;
-    ip?: string;
-    deleted?: number;
 }
 
 interface Payload {
@@ -38,7 +35,7 @@ interface UserData {
     banned: boolean;
 }
 
-module.exports = function (Messaging : MessagingInfo) {
+module.exports = function (Messaging : Messaging) {
     Messaging.editMessage = async (uid : string, mid : string, roomId : string, content : string) : Promise<void> => {
         await Messaging.checkContent(content);
         const raw = await Messaging.getMessageField(mid, 'content');
